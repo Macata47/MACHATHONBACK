@@ -17,8 +17,9 @@ class RoleSeeder extends Seeder
         // Crear el rol "admin"
         Role::factory()->create(['role' => 'admin']);
 
-        // Crear otros roles (en este caso, 199 roles de tipo "coder")
-        Role::factory()->count(199)->create();
+        // Crear otros roles (199 roles de tipo "coder")
+        Role::factory()->create(['role' => 'coder']);
     }
 }
+
 

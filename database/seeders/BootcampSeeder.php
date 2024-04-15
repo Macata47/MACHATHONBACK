@@ -15,7 +15,7 @@ class BootcampSeeder extends Seeder
     public function run()
     {
         // Crear instancias de Bootcamp usando la factoría
-        Bootcamp::factory()->count(10)->create();
+        Bootcamp::factory()->count(24)->create();
     }
 }
 

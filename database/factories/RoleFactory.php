@@ -21,12 +21,11 @@ class RoleFactory extends Factory
      */
     public function definition()
     {
-        // Genera el rol "admin" como el primer registro y "coder" para el resto
-        static $adminCreated = false;
-
+        // Define aquí la lógica para generar los roles
         return [
-            'role' => $adminCreated ? 'coder' : 'admin',
+            'role' => $this->faker->randomElement(['admin', 'coder']),
         ];
     }
 }
+
 

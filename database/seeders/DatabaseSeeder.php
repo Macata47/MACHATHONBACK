@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             FrontendtechnologySeeder::class,
             ControlversionSeeder::class,
             LevelSeeder::class,
+            LevelSeeder::class,
             UserSeeder::class,
             UserBackendtechLevelSeeder::class,
             UserFrontendtechLevelSeeder::class,
