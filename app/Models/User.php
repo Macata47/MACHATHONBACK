@@ -11,35 +11,78 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+ /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'users';
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var array
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'name', 'lastname', 'email', 'password', 'role_id', 'bootcamp_id', 'active'
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Define the bootcamp relationship.
      *
-     * @var array<int, string>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    public function bootcamp()
+    {
+        return $this->belongsTo(Bootcamp::class);
+    }
 
     /**
-     * The attributes that should be cast.
+     * Get the bootcamp associated with the user.
      *
-     * @var array<string, string>
+     * @return Bootcamp|null
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
+    
+    public function getBootcampAttribute()
+    {
+        return $this->bootcamp()->first();
+    }
+
+    /**
+     * The technologies that belong to the user.
+     */
+    public function backendTechnologies()
+    {
+        return $this->belongsToMany(BackendTechnology::class, 'users_backendtech_levels')
+                    ->withPivot('level_id')
+                    ->withTimestamps();
+    }
+
+      /**
+     * The frontend technologies that belong to the user.
+     */
+    public function frontendTechnologies()
+    {
+        return $this->belongsToMany(FrontendTechnology::class, 'users_frontendtech_levels')
+                    ->withPivot('level_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * The control versions that belong to the user.
+     */
+    public function controlVersions()
+    {
+        return $this->belongsToMany(ControlVersion::class, 'users_control_versiones_levels')
+                    ->withPivot('level_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get the team that belongs to the user.
+     */
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
+    }
 }
