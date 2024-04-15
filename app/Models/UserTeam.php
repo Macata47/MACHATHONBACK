@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Role extends Model
+class UserTeam extends Model
 {
     use HasFactory;
 
@@ -14,7 +14,7 @@ class Role extends Model
      *
      * @var string
      */
-    protected $table = 'roles';
+    protected $table = 'users_teams';
 
     /**
      * The attributes that are mass assignable.
@@ -22,14 +22,10 @@ class Role extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'lastname', 'email', 'password', 'role_id', 'bootcamp_id', 'active'
+        'user_id', 'team_id',
     ];
 
-    /**
-     * Get the bootcamp that the user belongs to.
-     */
-    public function bootcamp()
-    {
-        return $this->belongsTo(Bootcamp::class);
-    }
+    // Aquí puedes definir relaciones y métodos adicionales si es necesario
 }
+
+
