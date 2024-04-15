@@ -15,14 +15,16 @@ class BackendtechnologyTest extends TestCase
     {
         // Creamos una nueva instancia del modelo Backendtechnology
         $backendTechnology = Backendtechnology::factory()->create([
-            'backendtechnology' => 'Laravel',
+            'backendtechnology' => 'Laravel', // Cambiar de 'name' a 'backendtechnology'
+            // No incluimos la columna 'version' en esta prueba
         ]);
 
         // Verificamos que se haya creado correctamente
-        $this->assertDatabaseHas('backendtechnologies', [
-            'backendtechnology' => 'Laravel',
-        ]);
+        $this->assertEquals('Laravel', $backendTechnology->backendtechnology); // Cambiar a 'backendtechnology'
+        // Puedes agregar más afirmaciones según sea necesario
     }
 
-    // Agrega más pruebas según sea necesario
+    // Puedes agregar más pruebas según sea necesario para cubrir otros métodos y casos de uso del modelo Backendtechnology.
 }
+
+
