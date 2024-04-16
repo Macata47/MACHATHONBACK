@@ -31,7 +31,7 @@ class UserController extends Controller
             'name' => 'required|string',
             'lastname' => 'required|string',
             'email' => 'required|email|unique:users',
-            'password' => 'required|string',
+            'password' => 'nullable|string',
             'role_id' => 'required|exists:roles,id',
             'bootcamp_id' => 'required|exists:bootcamps,id',
             'active' => 'required|boolean',
