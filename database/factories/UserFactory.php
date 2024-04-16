@@ -26,7 +26,7 @@ class UserFactory extends Factory
         $bootcampIds = \App\Models\Bootcamp::pluck('id')->toArray();
 
         return [
-            'name' => $this->faker->name,
+            'name' => $this->faker->firstName,
             'lastname' => $this->faker->lastName,
             'email' => $this->faker->unique()->safeEmail,
             'email_verified_at' => now(),

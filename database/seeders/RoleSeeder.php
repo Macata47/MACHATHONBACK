@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Role;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class RoleSeeder extends Seeder
 {
@@ -14,11 +16,12 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
-        // Crear el rol "admin"
-        Role::factory()->create(['role' => 'admin']);
+        $now = Carbon::now();
 
-        // Crear otros roles (199 roles de tipo "coder")
-        Role::factory()->create(['role' => 'coder']);
+        DB::table('roles')->insert([
+            ['role' => 'Admin', 'created_at' => $now, 'updated_at' => $now],
+            ['role' => 'Coder', 'created_at' => $now, 'updated_at' => $now],
+        ]);
     }
 }
 
