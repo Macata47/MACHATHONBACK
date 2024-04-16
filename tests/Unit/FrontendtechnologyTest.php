@@ -2,13 +2,17 @@
 
 namespace Tests\Unit;
 
+use Illuminate\Foundation\Testing\DatabaseTransactions; 
+
 use App\Models\Frontendtechnology;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+//use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class FrontendtechnologyTest extends TestCase
 {
-    use RefreshDatabase;
+    //use RefreshDatabase;
+
+    use DatabaseTransactions; 
 
     /** @test */
     public function it_can_create_a_frontend_technology()

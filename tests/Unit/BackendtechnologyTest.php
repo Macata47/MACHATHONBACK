@@ -2,13 +2,17 @@
 
 namespace Tests\Unit\Models;
 
+use Illuminate\Foundation\Testing\DatabaseTransactions; //este
+
 use App\Models\Backendtechnology;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+//use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class BackendtechnologyTest extends TestCase
 {
-    use RefreshDatabase;
+    //use RefreshDatabase;
+    use DatabaseTransactions; //este
+    
 
     /** @test */
     public function it_can_create_a_backend_technology()
