@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Backendtechnology;
+use Carbon\Carbon;
 
 class BackendtechnologySeeder extends Seeder
 {
@@ -14,7 +15,14 @@ class BackendtechnologySeeder extends Seeder
      */
     public function run()
     {
-        Backendtechnology::factory()->count(10)->create();
+        
+        $now = Carbon::now();
+
+        Backendtechnology::create(['backendtechnology' => 'Laravel', 'created_at' => $now, 'updated_at' => $now]);
+        Backendtechnology::create(['backendtechnology' => 'Node.js', 'created_at' => $now, 'updated_at' => $now]);
+        Backendtechnology::create(['backendtechnology' => 'Django', 'created_at' => $now, 'updated_at' => $now]);
+        Backendtechnology::create(['backendtechnology' => 'Spring', 'created_at' => $now, 'updated_at' => $now]);
     }
-}
+    }
+
 

@@ -49,9 +49,11 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(User $user)
-    {
-        return response()->json($user);
-    }
+{
+    $user->load('backendTechnologies', 'frontendTechnologies', 'controlVersions');
+
+    return response()->json(['user' => $user], 200);
+}
 
     /**
      * Update the specified resource in storage.
