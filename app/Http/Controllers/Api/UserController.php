@@ -25,24 +25,31 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string',
-            'lastname' => 'required|string',
-            'email' => 'required|email|unique:users',
-            // Quita la regla de validación requerida para el campo 'password'
-            //'password' => 'nullable|string',
-            'role_id' => 'required|exists:roles,id',
-            'bootcamp_id' => 'required|exists:bootcamps,id',
-            'active' => 'required|boolean',
-        ]);
-        
+{
+    $request->validate([
+        'name' => 'required|string',
+        'lastname' => 'required|string',
+        'email' => 'required|email|unique:users',
+        // Quita la regla de validación requerida para el campo 'password'
+        //'password' => 'nullable|string',
+        'role_id' => 'required|exists:roles,id',
+        'bootcamp_id' => 'required|exists:bootcamps,id',
+        'active' => 'required|boolean',
+    ]);
 
-        $user = User::create($request->all());
+    // Crear el usuario
+    $user = User::create($request->all());
 
-        return response()->json($user, 201);
-    }
+    // Alimentar las relaciones muchos a muchos
+    $user->backendTechnologies()->attach($request->backendtechnology, ['level_id' => $request->backend_level]);
+    $user->frontendTechnologies()->attach($request->frontendtechnology, ['level_id' => $request->frontend_level]);
+    $user->controlVersions()->attach($request->controlversion, ['level_id' => $request->version_control_level]);
+
+    return response()->json($user, 201);
+}
+
     /**
      * Display the specified resource.
      *
