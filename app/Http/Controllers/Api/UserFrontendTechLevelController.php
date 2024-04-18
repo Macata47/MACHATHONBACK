@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\UserFrontendTechLevel;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 
 class UserFrontendTechLevelController extends Controller
 {
@@ -20,16 +21,27 @@ class UserFrontendTechLevelController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            // Aquí puedes agregar validaciones si es necesario
-        ]);
+    public function store(Request $request, User $user)
+{
+    $request->validate([
+        'frontend_technologies' => 'required|array',
+        'frontend_technologies.*' => 'exists:frontend_technologies,id',
+        'levels' => 'required|array',
+        'levels.*' => 'required|integer|min:1|max:3', // Ajusta los límites según tus necesidades
+    ]);
 
-        $userFrontendTechLevel = UserFrontendTechLevel::create($request->all());
+    // Obtener los datos del formulario
+    $data = $request->only(['frontend_technologies', 'levels']);
 
-        return response()->json($userFrontendTechLevel, 201);
+    // Crear registros en la tabla pivot
+    foreach ($data['frontend_technologies'] as $key => $frontendTechnologyId) {
+        $user->frontendTechnologies()->attach($frontendTechnologyId, ['level_id' => $data['levels'][$key]]);
     }
+
+    return response()->json(['message' => 'Registros creados correctamente'], 201);
+}
+
+
 
     /**
      * Display the specified resource.

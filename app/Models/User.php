@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,7 +10,8 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
- /**
+
+    /**
      * The table associated with the model.
      *
      * @var string
@@ -25,6 +25,15 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'lastname', 'email', 'password', 'role_id', 'bootcamp_id', 'active'
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'active' => 'boolean', // Casting del campo 'active' como booleano
     ];
 
     /**
@@ -58,7 +67,7 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
-      /**
+    /**
      * The frontend technologies that belong to the user.
      */
     public function frontendTechnologies()
@@ -91,4 +100,23 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    /**
+     * Activar el usuario.
+     *
+     * @return void
+     */
+    public function activate()
+    {
+        $this->update(['active' => true]);
+    }
+
+    /**
+     * Desactivar el usuario.
+     *
+     * @return void
+     */
+    public function deactivate()
+    {
+        $this->update(['active' => false]);
+    }
 }

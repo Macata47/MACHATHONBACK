@@ -31,17 +31,18 @@ class UserController extends Controller
             'name' => 'required|string',
             'lastname' => 'required|string',
             'email' => 'required|email|unique:users',
-            'password' => 'nullable|string',
+            // Quita la regla de validación requerida para el campo 'password'
+            //'password' => 'nullable|string',
             'role_id' => 'required|exists:roles,id',
             'bootcamp_id' => 'required|exists:bootcamps,id',
             'active' => 'required|boolean',
         ]);
+        
 
         $user = User::create($request->all());
 
         return response()->json($user, 201);
     }
-
     /**
      * Display the specified resource.
      *

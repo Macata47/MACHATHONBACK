@@ -29,8 +29,8 @@ class UserFactory extends Factory
             'name' => $this->faker->firstName,
             'lastname' => $this->faker->lastName,
             'email' => $this->faker->unique()->safeEmail,
-            'email_verified_at' => now(),
-            'password' => '$2y$10$uzrqB2btMk8E3iAVH/bbq.wv0dWsb42noGw6YIwrK/y3B4GoKlCYS', // password
+            //'email_verified_at' => now(),
+            //'password' => '$2y$10$uzrqB2btMk8E3iAVH/bbq.wv0dWsb42noGw6YIwrK/y3B4GoKlCYS', // password
             // Asigna aleatoriamente el ID del rol "coder"
             'role_id' => \App\Models\Role::where('role', 'coder')->first()->id,
             // Asigna aleatoriamente el bootcamp_id de entre los disponibles
