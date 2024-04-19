@@ -22,15 +22,22 @@ class UserTeamController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'team_id' => 'required|exists:teams,id',
-        ]);
-
-        $userTeam = UserTeam::create($request->all());
-
-        return response()->json($userTeam, 201);
+      // Validar los datos recibidos en la solicitud
+      $request->validate([
+        'user_id' => 'required|integer', // Valida que el campo 'user_id' sea requerido y que sea un entero
+        'team_id' => 'required|integer', // Valida que el campo 'team_id' sea requerido y que sea un entero
+      ]);
+    
+      // Crear una nueva entrada en la tabla pivot con los datos proporcionados en la solicitud
+      UserTeam::create([
+        'user_id' => $request->user_id,
+        'team_id' => $request->team_id,
+      ]);
+    
+      // Devolver una respuesta con el código de estado 201 (Created)
+      return response()->json([], 201);
     }
+    
 
     /**
      * Display the specified resource.

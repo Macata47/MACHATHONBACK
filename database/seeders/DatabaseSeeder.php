@@ -30,8 +30,8 @@ class DatabaseSeeder extends Seeder
             UserBackendtechLevelSeeder::class,
             UserFrontendtechLevelSeeder::class,
             UserControlversionLevelSeeder::class,
-            TeamSeeder::class,
-            UserTeamSeeder::class,
+            // TeamSeeder::class,
+            // UserTeamSeeder::class,
 
         ]);
 

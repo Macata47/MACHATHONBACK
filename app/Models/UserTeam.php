@@ -30,6 +30,11 @@ class UserTeam extends Model
     {
         return $this->belongsTo(Team::class);
     }
+
+    public function users()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
 
 

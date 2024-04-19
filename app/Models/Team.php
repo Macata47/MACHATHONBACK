@@ -40,9 +40,14 @@ class Team extends Model
     /**
      * Get the user that belongs to the team.
      */
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(User::class, 'users_teams');
+    }
+
+    public function user_team()
+    {
+        return $this->hasMany(UserTeam::class);
     }
 
 }
