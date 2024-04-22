@@ -27,16 +27,21 @@ class TeamController extends Controller
     // }
 
     public function store(Request $request)
-    {
-        $teamNames = $request->input('teams');
+{
+    $teams = $request->input('teams');
 
-        // Iterar sobre los nombres de los equipos y almacenarlos en la base de datos
-        foreach ($teamNames as $teamName) {
-            Team::create(['team' => $teamName]);
+    try {
+        foreach ($teams as $teamData) {
+            $team = new Team();
+            $team->team = $teamData['team']; // Se accede al nombre del equipo dentro del arreglo
+            $team->save();
         }
 
         return response()->json(['message' => 'Equipos almacenados exitosamente'], 201);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al almacenar equipos: ' . $e->getMessage()], 500);
     }
+}
 
 
     public function createTeams(Request $request)
