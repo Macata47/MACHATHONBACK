@@ -21,131 +21,130 @@ class TeamController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    // public function store(Request $request)
-    // {
-    //     return Team::create($request->all());
-    // }
-
     public function store(Request $request)
-{
-    $teams = $request->input('teams');
-
-    try {
-        foreach ($teams as $teamData) {
-            $team = new Team();
-            $team->team = $teamData['team']; // Se accede al nombre del equipo dentro del arreglo
-            $team->save();
-        }
-
-        return response()->json(['message' => 'Equipos almacenados exitosamente'], 201);
-    } catch (\Exception $e) {
-        return response()->json(['message' => 'Error al almacenar equipos: ' . $e->getMessage()], 500);
-    }
-}
-
-
-    public function createTeams(Request $request)
-{
-    // Obtener el número mínimo y máximo de participantes por equipo
-    $minParticipants = $request->input('minParticipants');
-    $maxParticipants = $request->input('maxParticipants');
-
-    // Obtener usuarios senior en backendtech, frontendtech y control de versiones
-    $backendSeniors = User::whereHas('backendTechnologies', function ($query) {
-        $query->where('level_id', 1); 
-    })->get();
-
-    $frontendSeniors = User::whereHas('frontendTechnologies', function ($query) {
-        $query->where('level_id', 1); 
-    })->get();
-
-    $versionControlSeniors = User::whereHas('controlVersions', function ($query) {
-        $query->where('level_id', 1);
-    })->get();
-
-    // Asignar usuarios senior a los equipos en rondas
-    $teams = collect();
-    $seniors = [$backendSeniors, $frontendSeniors, $versionControlSeniors];
-
-    foreach ($seniors as $seniorType) {
-        foreach ($seniorType as $senior) {
-            // Obtener un equipo al azar o crear uno nuevo si no existe
-            $randomTeam = Team::inRandomOrder()->firstOrCreate([]);
-
-            // Verificar si el usuario ya está asociado al equipo
-            if (!$randomTeam->users()->where('user_id', $senior->id)->exists()) {
-                // Asignar al usuario al equipo
-                $randomTeam->users()->attach($senior);
-            }
-            // Agregar el equipo a la colección
-            $teams->push($randomTeam);
-        }
-    }
-
-    // Obtener los IDs de los usuarios en los equipos
-    $teamUserIds = $teams->pluck('users')->flatten()->pluck('id')->toArray();
-
-    // Obtener los usuarios que no están en los equipos
-    $remainingUsers = User::whereNotIn('id', $teamUserIds)->get();
-
-    // Asignar los usuarios restantes a los equipos
-    $this->assignRemainingUsers($remainingUsers, $teams, $minParticipants, $maxParticipants);
-
-    // Almacenar equipos en la base de datos
-    foreach ($teams as $team) {
-        $team->save();
-    }
-
-    return response()->json(['message' => 'Equipos creados exitosamente', 'teams' => $teams], 200);
-}
-
-    private function assignUserToTeam($user, $team)
     {
-        // Verificar si el usuario ya está asignado a algún equipo
-        if ($user->team) {
-            return null;
-        }
-    
-        // Asignar el usuario al equipo y crear la relación pivot
-        $team->users()->attach($user->id);
-    
-        // Retornar el equipo actualizado
-        return $team;
-    }
-    
+        $teams = $request->input('teams');
 
-    private function assignRemainingUsers($users, $teams, $minParticipants, $maxParticipants)
-{
-    $usersArray = $users->toArray(); // Convertir la colección de usuarios a un array
+        try {
+            foreach ($teams as $teamData) {
+                $team = new Team();
+                $team->team = $teamData['team']; // Se accede al nombre del equipo dentro del arreglo
 
-    foreach ($usersArray as $user) {
-        $team = $teams->random();
-        $teamSize = $team->users()->count();
-        if ($teamSize < $maxParticipants) {
-            // Asignar al usuario al equipo y actualizar el equipo
-            $updatedTeam = $this->assignUserToTeam($user, $team);
-            // Si el equipo se actualiza correctamente, asignarlo al array de equipos
-            if ($updatedTeam) {
-                $teams->push($updatedTeam);
+                // Obtener los IDs de los usuarios para este equipo
+                $userIds = $teamData['users'];
+
+                // Asociar usuarios al equipo
+                $team->save(); // Guardar el equipo primero para obtener el ID
+                $team->users()->attach($userIds);
+
+                $team->save();
             }
+
+            // Cargar los usuarios asociados a cada equipo y devolverlos en la respuesta
+            $teamsWithUsers = Team::with('users')->get();
+
+            return response()->json(['message' => 'Equipos almacenados exitosamente', 'teams' => $teamsWithUsers], 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al almacenar equipos: ' . $e->getMessage()], 500);
         }
     }
 
-    foreach ($teams as $team) {
-        $teamSize = $team->users()->count();
-        $additionalUsersNeeded = $minParticipants - $teamSize;
-        if ($additionalUsersNeeded > 0) {
-            // Utilizar array_splice para extraer usuarios del array de usuarios restantes
-            $additionalUsers = array_splice($usersArray, 0, $additionalUsersNeeded);
-            foreach ($additionalUsers as $user) {
-                // Asignar al usuario al equipo y actualizar el equipo
-                $updatedTeam = $this->assignUserToTeam($user, $team);
-                // Si el equipo se actualiza correctamente, asignarlo al array de equipos
-                if ($updatedTeam) {
-                    $teams->push($updatedTeam);
+    /**
+     * Create teams based on specified criteria.
+     */
+    public function createTeams(Request $request)
+    {   
+        try {
+            // Eliminar equipos existentes
+            Team::truncate();
+
+            $minParticipants = $request->input('minParticipants');
+            $maxParticipants = $request->input('maxParticipants');
+
+            // Obtener usuarios senior en backendtech, frontendtech y control de versiones
+            $backendSeniors = User::whereHas('backendTechnologies', function ($query) {
+                $query->where('level_id', 1); 
+            })->get();
+
+            $frontendSeniors = User::whereHas('frontendTechnologies', function ($query) {
+                $query->where('level_id', 1); 
+            })->get();
+
+            $versionControlSeniors = User::whereHas('controlVersions', function ($query) {
+                $query->where('level_id', 1);
+            })->get();
+
+            // Asignar usuarios senior a los equipos en rondas
+            $teams = collect();
+            $seniors = [$backendSeniors, $frontendSeniors, $versionControlSeniors];
+
+            foreach ($seniors as $seniorType) {
+                foreach ($seniorType as $senior) {
+                    // Obtener un equipo al azar o crear uno nuevo si no existe
+                    $randomTeam = Team::inRandomOrder()->firstOrCreate([]);
+
+                    // Verificar si el usuario ya está asociado al equipo con este nivel
+                    if (!$randomTeam->users()->where('user_id', $senior->id)->wherePivot('level_id', $senior->pivot->level_id)->exists()) {
+                        // Asociar al usuario al equipo con este nivel
+                        $randomTeam->users()->attach($senior, ['level_id' => $senior->pivot->level_id]);
+                    }
+                    // Agregar el equipo a la colección
+                    $teams->push($randomTeam);
                 }
             }
+
+            // Obtener los IDs de los usuarios en los equipos
+            $teamUserIds = $teams->pluck('users')->flatten()->pluck('id')->toArray();
+
+            // Obtener los usuarios que no están en los equipos
+            $remainingUsers = User::whereNotIn('id', $teamUserIds)->get();
+
+            // Asignar los usuarios restantes a los equipos
+            foreach ($remainingUsers as $user) {
+                // Obtener un equipo al azar
+                $randomTeam = $teams->random();
+
+                // Verificar el tamaño del equipo
+                $teamSize = $randomTeam->users()->count();
+
+                // Verificar si el equipo ya alcanzó el límite máximo de participantes
+                if ($teamSize < $maxParticipants) {
+                    // Asociar al usuario al equipo
+                    $randomTeam->users()->attach($user);
+                } else {
+                    // Si el equipo está lleno, crear un nuevo equipo
+                    $newTeam = Team::create(['team' => 'Nuevo Equipo']);
+                    $newTeam->users()->attach($user);
+                    $teams->push($newTeam);
+                }
+            }
+
+            // Almacenar equipos en la base de datos
+            foreach ($teams as $team) {
+                $team->save();
+            }
+
+            // Cargar los usuarios asociados a cada equipo y devolverlos en la respuesta
+            $teamsWithUsers = Team::with('users')->get();
+
+            return response()->json(['message' => 'Equipos creados exitosamente', 'teams' => $teamsWithUsers], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al crear equipos: ' . $e->getMessage()], 500);
         }
     }
 }
-}
+
+
+
+
+    // public function deleteAll()
+    // {
+    //     try {
+    //         Team::truncate(); // Eliminar todos los registros de la tabla teams
+    //         return response()->json(['message' => 'Todos los equipos han sido eliminados correctamente'], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['message' => 'Error al eliminar equipos: ' . $e->getMessage()], 500);
+    //     }
+    // }
+
+

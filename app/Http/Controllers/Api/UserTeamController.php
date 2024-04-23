@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\UserTeam;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class UserTeamController extends Controller
 {
@@ -12,10 +13,37 @@ class UserTeamController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $userTeams = UserTeam::all();
-        return response()->json($userTeams);
+{
+    // Obtener todos los UserTeam con sus usuarios asociados
+    $userTeams = DB::table('users_teams')
+                    ->join('users', 'users_teams.user_id', '=', 'users.id')
+                    ->select('users_teams.team_id', 'users.id as user_id', 'users.name')
+                    ->get();
+
+    // Crear un array para almacenar los resultados
+    $results = [];
+
+    // Iterar sobre los resultados para agrupar los usuarios por equipo
+    foreach ($userTeams as $userTeam) {
+        // Verificar si ya existe una entrada para este team_id en los resultados
+        if (!array_key_exists($userTeam->team_id, $results)) {
+            // Si no existe, creamos una nueva entrada para este team_id
+            $results[$userTeam->team_id] = [
+                'team_id' => $userTeam->team_id,
+                'users' => []
+            ];
+        }
+
+        // Agregar el nombre del usuario al array de usuarios del equipo correspondiente
+        $results[$userTeam->team_id]['users'][] = [
+            'user_id' => $userTeam->user_id,
+            'name' => $userTeam->name
+        ];
     }
+
+    // Retornar la respuesta JSON
+    return response()->json(array_values($results));
+}
 
     /**
      * Store a newly created resource in storage.
