@@ -57,11 +57,30 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(User $user)
-{
-    $user->load('backendTechnologies', 'frontendTechnologies', 'controlVersions');
+    {
+        // Cargar solo las relaciones necesarias
+        $user->load([
+            'backendTechnologies:id,backendtechnology',
+            'frontendTechnologies:id,frontendtechnology',
+            'controlVersions:id,controlversion',
+        ]);
+    
+        // Retorna solo los datos específicos que necesitas
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'lastname' => $user->lastname,
+                'email' => $user->email,
+                'bootcamp_name' => $user->bootcamp->bootcamp, // Obtener el nombre del bootcamp
+                'backend_technologies' => $user->backendTechnologies,
+                'frontend_technologies' => $user->frontendTechnologies,
+                'control_versions' => $user->controlVersions,
+            ]
+        ], 200);
+    }
+    
 
-    return response()->json(['user' => $user], 200);
-}
 
     /**
      * Update the specified resource in storage.

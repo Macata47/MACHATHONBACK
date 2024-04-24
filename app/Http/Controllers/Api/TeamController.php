@@ -13,12 +13,26 @@ class TeamController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        // Obtener todos los equipos con los usuarios asociados
-        $teamsWithUsers = Team::with('users')->get();
+{
+    // Obtener todos los equipos con los usuarios asociados y sus respectivas tecnologías y versiones de control
+    $teamsWithUsers = Team::with(['users' => function ($query) {
+        // Cargar las relaciones necesarias para cada usuario
+        $query->with([
+            'backendTechnologies' => function ($query) {
+                $query->select('id', 'backendtechnology');
+            },
+            'frontendTechnologies' => function ($query) {
+                $query->select('id', 'frontendtechnology');
+            },
+            'controlVersions' => function ($query) {
+                $query->select('id', 'controlversion');
+            },
+            'bootcamp:id,bootcamp',
+        ])->select('id', 'name'); // Seleccionar solo los campos necesarios para cada usuario
+    }])->get();
 
-        return response()->json($teamsWithUsers);
-    }
+    return response()->json($teamsWithUsers);
+}
 
     /**
      * Store a newly created resource in storage.
