@@ -13,16 +13,16 @@ class BootcampTest extends TestCase
     /** @test */
     public function it_can_create_a_bootcamp()
     {
-        // Creamos una nueva instancia del modelo Bootcamp
+        
         $bootcamp = Bootcamp::factory()->create([
-            'bootcamp' => 'Full Stack Developer', // Cambia 'bootcamp' según tu estructura de datos
-            // Agrega más atributos si es necesario
+            'bootcamp' => 'Full Stack Developer', 
+            
         ]);
 
-        // Verificamos que se haya creado correctamente
-        $this->assertEquals('Full Stack Developer', $bootcamp->bootcamp); // Cambia 'bootcamp' según tu estructura de datos
-        // Puedes agregar más afirmaciones según sea necesario
+        
+        $this->assertEquals('Full Stack Developer', $bootcamp->bootcamp); 
+        
     }
 
-    // Agrega más pruebas según sea necesario
+    
 }

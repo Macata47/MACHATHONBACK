@@ -106,10 +106,12 @@ Route::delete('/user-controlversion-levels/{id}', [UserControlversionLevelContro
 
 Route::get('/teams', [TeamController::class, 'index']);
 Route::post('/teams', [TeamController::class, 'store']);
+Route::post('/teams/create', [TeamController::class, 'createTeams']);
 Route::get('/teams/{id}', [TeamController::class, 'show']);
 Route::put('/teams/{id}', [TeamController::class, 'update']);
 Route::delete('/teams/{id}', [TeamController::class, 'destroy']);
-
+Route::delete('/teams', [TeamController::class, 'deleteAll']);
+Route::delete('/teams/delete-all', [TeamController::class, 'deleteAll']); 
 
 
 Route::get('/user-teams', [UserTeamController::class, 'index']);

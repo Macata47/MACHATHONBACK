@@ -17,7 +17,7 @@ class LevelSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        // Insertamos los niveles manualmente
+      
         Level::create(['level' => 'Senior', 'created_at' => $now, 'updated_at' => $now]);
         Level::create(['level' => 'Mid', 'created_at' => $now, 'updated_at' => $now]);
         Level::create(['level' => 'Junior', 'created_at' => $now, 'updated_at' => $now]);

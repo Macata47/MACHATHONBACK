@@ -16,4 +16,10 @@ class UserControlversionLevel extends Pivot
      * @var string
      */
     protected $table = 'users_control_versiones_levels';
+
+    public function index()
+    {
+        $levels = UserControlversionLevel::with('user')->get();
+        return response()->json($levels);
+    }
 }
