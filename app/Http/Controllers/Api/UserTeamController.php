@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\UserTeam;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class UserTeamController extends Controller
 {
@@ -13,8 +14,35 @@ class UserTeamController extends Controller
      */
     public function index()
     {
-        $userTeams = UserTeam::all();
-        return response()->json($userTeams);
+
+        $userTeams = DB::table('users_teams')
+            ->join('users', 'users_teams.user_id', '=', 'users.id')
+            ->select('users_teams.team_id', 'users.id as user_id', 'users.name')
+            ->get();
+
+
+        $results = [];
+
+
+        foreach ($userTeams as $userTeam) {
+
+            if (!array_key_exists($userTeam->team_id, $results)) {
+
+                $results[$userTeam->team_id] = [
+                    'team_id' => $userTeam->team_id,
+                    'users' => []
+                ];
+            }
+
+
+            $results[$userTeam->team_id]['users'][] = [
+                'user_id' => $userTeam->user_id,
+                'name' => $userTeam->name
+            ];
+        }
+
+
+        return response()->json(array_values($results));
     }
 
     /**
@@ -22,15 +50,22 @@ class UserTeamController extends Controller
      */
     public function store(Request $request)
     {
+
         $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'team_id' => 'required|exists:teams,id',
+            'user_id' => 'required|integer',
+            'team_id' => 'required|integer',
         ]);
 
-        $userTeam = UserTeam::create($request->all());
 
-        return response()->json($userTeam, 201);
+        UserTeam::create([
+            'user_id' => $request->user_id,
+            'team_id' => $request->team_id,
+        ]);
+
+
+        return response()->json([], 201);
     }
+
 
     /**
      * Display the specified resource.
@@ -69,4 +104,3 @@ class UserTeamController extends Controller
         return response()->json(null, 204);
     }
 }
-

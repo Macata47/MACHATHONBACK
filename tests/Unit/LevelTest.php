@@ -13,16 +13,16 @@ class LevelTest extends TestCase
     /** @test */
     public function it_can_create_a_level()
     {
-        // Creamos una nueva instancia del modelo Level
+        
         $level = Level::factory()->create([
-            'level' => 'Intermediate', // Cambia 'level' según tu estructura de datos
-            // Agrega más atributos si es necesario
+            'level' => 'Intermediate', 
+            
         ]);
 
-        // Verificamos que se haya creado correctamente
-        $this->assertEquals('Intermediate', $level->level); // Cambia 'level' según tu estructura de datos
-        // Puedes agregar más afirmaciones según sea necesario
+        
+        $this->assertEquals('Intermediate', $level->level); 
+        
     }
 
-    // Agrega más pruebas según sea necesario
+    
 }

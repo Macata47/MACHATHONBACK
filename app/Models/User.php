@@ -100,6 +100,10 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    public function user_team()
+    {
+        return $this->belongsTo(UserTeam::class);
+    }
     /**
      * Activar el usuario.
      *

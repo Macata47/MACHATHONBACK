@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Team;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 
 class TeamController extends Controller
 {
@@ -13,8 +14,10 @@ class TeamController extends Controller
      */
     public function index()
     {
-        $teams = Team::all();
-        return response()->json($teams);
+        // Obtener todos los equipos con los usuarios asociados
+        $teamsWithUsers = Team::with('users')->get();
+
+        return response()->json($teamsWithUsers);
     }
 
     /**
@@ -22,48 +25,113 @@ class TeamController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'team' => 'required|string|unique:teams',
-        ]);
+        $teams = $request->input('teams');
 
-        $team = Team::create($request->all());
+        try {
+            foreach ($teams as $teamData) {
+                $team = new Team();
+                $team->team = $teamData['team']; // Se accede al nombre del equipo dentro del arreglo
 
-        return response()->json($team, 201);
+                // Obtener los IDs de los usuarios para este equipo
+                $userIds = $teamData['users'];
+
+                // Asociar usuarios al equipo
+                $team->save(); // Guardar el equipo primero para obtener el ID
+                $team->users()->attach($userIds);
+
+                $team->save();
+            }
+
+            // Cargar los usuarios asociados a cada equipo y devolverlos en la respuesta
+            $teamsWithUsers = Team::with('users')->get();
+
+            return response()->json(['message' => 'Equipos almacenados exitosamente', 'teams' => $teamsWithUsers], 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al almacenar equipos: ' . $e->getMessage()], 500);
+        }
     }
 
     /**
-     * Display the specified resource.
+     * Create teams based on specified criteria.
      */
-    public function show(string $id)
+    public function createTeams(Request $request)
     {
-        $team = Team::findOrFail($id);
-        return response()->json($team);
-    }
+        try {
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $team = Team::findOrFail($id);
+            Team::truncate();
 
-        $request->validate([
-            'team' => 'required|string|unique:teams,team,' . $team->id,
-        ]);
+            $minParticipants = $request->input('minParticipants');
+            $maxParticipants = $request->input('maxParticipants');
 
-        $team->update($request->all());
 
-        return response()->json($team, 200);
-    }
+            $backendSeniors = User::whereHas('backendTechnologies', function ($query) {
+                $query->where('level_id', 1);
+            })->get();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $team = Team::findOrFail($id);
-        $team->delete();
+            $frontendSeniors = User::whereHas('frontendTechnologies', function ($query) {
+                $query->where('level_id', 1);
+            })->get();
 
-        return response()->json(null, 204);
+            $versionControlSeniors = User::whereHas('controlVersions', function ($query) {
+                $query->where('level_id', 1);
+            })->get();
+
+
+            $teams = collect();
+            $seniors = [$backendSeniors, $frontendSeniors, $versionControlSeniors];
+
+            foreach ($seniors as $seniorType) {
+                foreach ($seniorType as $senior) {
+
+                    $randomTeam = Team::inRandomOrder()->firstOrCreate([]);
+
+
+                    if (!$randomTeam->users()->where('user_id', $senior->id)->wherePivot('level_id', $senior->pivot->level_id)->exists()) {
+
+                        $randomTeam->users()->attach($senior, ['level_id' => $senior->pivot->level_id]);
+                    }
+
+                    $teams->push($randomTeam);
+                }
+            }
+
+
+            $teamUserIds = $teams->pluck('users')->flatten()->pluck('id')->toArray();
+
+
+            $remainingUsers = User::whereNotIn('id', $teamUserIds)->get();
+
+
+            foreach ($remainingUsers as $user) {
+
+                $randomTeam = $teams->random();
+
+
+                $teamSize = $randomTeam->users()->count();
+
+
+                if ($teamSize < $maxParticipants) {
+
+                    $randomTeam->users()->attach($user);
+                } else {
+
+                    $newTeam = Team::create(['team' => 'Nuevo Equipo']);
+                    $newTeam->users()->attach($user);
+                    $teams->push($newTeam);
+                }
+            }
+
+
+            foreach ($teams as $team) {
+                $team->save();
+            }
+
+
+            $teamsWithUsers = Team::with('users')->get();
+
+            return response()->json(['message' => 'Equipos creados exitosamente', 'teams' => $teamsWithUsers], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al crear equipos: ' . $e->getMessage()], 500);
+        }
     }
 }

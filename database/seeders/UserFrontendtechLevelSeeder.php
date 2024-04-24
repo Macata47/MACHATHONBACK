@@ -13,19 +13,19 @@ class UserFrontendTechLevelSeeder extends Seeder
 {
     public function run()
     {
-        $faker = Faker::create(); // Creamos una instancia de Faker
+        $faker = Faker::create();
 
-        // Obtener todos los IDs de los usuarios, tecnologías frontend y niveles
+
         $userIds = User::pluck('id')->toArray();
         $frontendTechIds = Frontendtechnology::pluck('id')->toArray();
         $levelIds = Level::pluck('id')->toArray();
 
-        // Iterar para crear relaciones
+
         foreach ($userIds as $userId) {
             $frontendTechId = $faker->randomElement($frontendTechIds);
             $levelId = $faker->randomElement($levelIds);
 
-            // Insertar en la tabla pivot
+
             DB::table('users_frontendtech_levels')->insert([
                 'user_id' => $userId,
                 'frontendtechnology_id' => $frontendTechId,

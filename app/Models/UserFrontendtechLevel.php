@@ -16,4 +16,10 @@ class UserFrontendtechLevel extends Pivot
      * @var string
      */
     protected $table = 'users_frontendtech_levels';
+
+    public function index()
+    {
+        $levels = UserFrontendTechLevel::with('user')->get();
+        return response()->json($levels);
+    }
 }
