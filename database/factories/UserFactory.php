@@ -2,43 +2,58 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
+     * The name of the factory's corresponding model.
+     *
+     * @var string
      */
-    protected static ?string $password;
+    protected $model = User::class;
 
     /**
      * Define the model's default state.
      *
-     * @return array<string, mixed>
+     * @return array
      */
-    public function definition(): array
+    public function definition()
     {
+        
+        $bootcampIds = \App\Models\Bootcamp::pluck('id')->toArray();
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'name' => $this->faker->firstName,
+            'lastname' => $this->faker->lastName,
+            'email' => $this->faker->unique()->safeEmail,
+            //'email_verified_at' => now(),
+            //'password' => '$2y$10$uzrqB2btMk8E3iAVH/bbq.wv0dWsb42noGw6YIwrK/y3B4GoKlCYS', // password
+            // Asigna aleatoriamente el ID del rol "coder"
+            'role_id' => \App\Models\Role::where('role', 'coder')->first()->id,
+            
+            'bootcamp_id' => $this->faker->randomElement($bootcampIds),
+            'active' => $this->faker->boolean
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indica al factory que el bootcamp_id puede ser especificado manualmente.
+     *
+     * @param int $bootcampId
+     * @return UserFactory
      */
-    public function unverified(): static
+    public function withBootcampId($bootcampId)
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->state(function (array $attributes) use ($bootcampId) {
+            return [
+                'bootcamp_id' => $bootcampId,
+            ];
+        });
     }
 }
+
+
+
