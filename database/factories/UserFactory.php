@@ -22,7 +22,7 @@ class UserFactory extends Factory
      */
     public function definition()
     {
-        // Obtén todos los IDs de los bootcamps disponibles
+        
         $bootcampIds = \App\Models\Bootcamp::pluck('id')->toArray();
 
         return [
@@ -33,7 +33,7 @@ class UserFactory extends Factory
             //'password' => '$2y$10$uzrqB2btMk8E3iAVH/bbq.wv0dWsb42noGw6YIwrK/y3B4GoKlCYS', // password
             // Asigna aleatoriamente el ID del rol "coder"
             'role_id' => \App\Models\Role::where('role', 'coder')->first()->id,
-            // Asigna aleatoriamente el bootcamp_id de entre los disponibles
+            
             'bootcamp_id' => $this->faker->randomElement($bootcampIds),
             'active' => $this->faker->boolean
         ];

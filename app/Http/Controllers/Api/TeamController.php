@@ -55,78 +55,78 @@ class TeamController extends Controller
      * Create teams based on specified criteria.
      */
     public function createTeams(Request $request)
-    {   
+    {
         try {
-            // Eliminar equipos existentes
+
             Team::truncate();
 
             $minParticipants = $request->input('minParticipants');
             $maxParticipants = $request->input('maxParticipants');
 
-            // Obtener usuarios senior en backendtech, frontendtech y control de versiones
+
             $backendSeniors = User::whereHas('backendTechnologies', function ($query) {
-                $query->where('level_id', 1); 
+                $query->where('level_id', 1);
             })->get();
 
             $frontendSeniors = User::whereHas('frontendTechnologies', function ($query) {
-                $query->where('level_id', 1); 
+                $query->where('level_id', 1);
             })->get();
 
             $versionControlSeniors = User::whereHas('controlVersions', function ($query) {
                 $query->where('level_id', 1);
             })->get();
 
-            // Asignar usuarios senior a los equipos en rondas
+
             $teams = collect();
             $seniors = [$backendSeniors, $frontendSeniors, $versionControlSeniors];
 
             foreach ($seniors as $seniorType) {
                 foreach ($seniorType as $senior) {
-                    // Obtener un equipo al azar o crear uno nuevo si no existe
+
                     $randomTeam = Team::inRandomOrder()->firstOrCreate([]);
 
-                    // Verificar si el usuario ya está asociado al equipo con este nivel
+
                     if (!$randomTeam->users()->where('user_id', $senior->id)->wherePivot('level_id', $senior->pivot->level_id)->exists()) {
-                        // Asociar al usuario al equipo con este nivel
+
                         $randomTeam->users()->attach($senior, ['level_id' => $senior->pivot->level_id]);
                     }
-                    // Agregar el equipo a la colección
+
                     $teams->push($randomTeam);
                 }
             }
 
-            // Obtener los IDs de los usuarios en los equipos
+
             $teamUserIds = $teams->pluck('users')->flatten()->pluck('id')->toArray();
 
-            // Obtener los usuarios que no están en los equipos
+
             $remainingUsers = User::whereNotIn('id', $teamUserIds)->get();
 
-            // Asignar los usuarios restantes a los equipos
+
             foreach ($remainingUsers as $user) {
-                // Obtener un equipo al azar
+
                 $randomTeam = $teams->random();
 
-                // Verificar el tamaño del equipo
+
                 $teamSize = $randomTeam->users()->count();
 
-                // Verificar si el equipo ya alcanzó el límite máximo de participantes
+
                 if ($teamSize < $maxParticipants) {
-                    // Asociar al usuario al equipo
+
                     $randomTeam->users()->attach($user);
                 } else {
-                    // Si el equipo está lleno, crear un nuevo equipo
+
                     $newTeam = Team::create(['team' => 'Nuevo Equipo']);
                     $newTeam->users()->attach($user);
                     $teams->push($newTeam);
                 }
             }
 
-            // Almacenar equipos en la base de datos
+
             foreach ($teams as $team) {
                 $team->save();
             }
 
-            // Cargar los usuarios asociados a cada equipo y devolverlos en la respuesta
+
             $teamsWithUsers = Team::with('users')->get();
 
             return response()->json(['message' => 'Equipos creados exitosamente', 'teams' => $teamsWithUsers], 200);
@@ -135,18 +135,3 @@ class TeamController extends Controller
         }
     }
 }
-
-
-
-
-    // public function deleteAll()
-    // {
-    //     try {
-    //         Team::truncate(); // Eliminar todos los registros de la tabla teams
-    //         return response()->json(['message' => 'Todos los equipos han sido eliminados correctamente'], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['message' => 'Error al eliminar equipos: ' . $e->getMessage()], 500);
-    //     }
-    // }
-
-

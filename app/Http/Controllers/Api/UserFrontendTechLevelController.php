@@ -22,24 +22,24 @@ class UserFrontendTechLevelController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request, User $user)
-{
-    $request->validate([
-        'frontend_technologies' => 'required|array',
-        'frontend_technologies.*' => 'exists:frontend_technologies,id',
-        'levels' => 'required|array',
-        'levels.*' => 'required|integer|min:1|max:3', // Ajusta los límites según tus necesidades
-    ]);
+    {
+        $request->validate([
+            'frontend_technologies' => 'required|array',
+            'frontend_technologies.*' => 'exists:frontend_technologies,id',
+            'levels' => 'required|array',
+            'levels.*' => 'required|integer|min:1|max:3',
+        ]);
 
-    // Obtener los datos del formulario
-    $data = $request->only(['frontend_technologies', 'levels']);
 
-    // Crear registros en la tabla pivot
-    foreach ($data['frontend_technologies'] as $key => $frontendTechnologyId) {
-        $user->frontendTechnologies()->attach($frontendTechnologyId, ['level_id' => $data['levels'][$key]]);
+        $data = $request->only(['frontend_technologies', 'levels']);
+
+
+        foreach ($data['frontend_technologies'] as $key => $frontendTechnologyId) {
+            $user->frontendTechnologies()->attach($frontendTechnologyId, ['level_id' => $data['levels'][$key]]);
+        }
+
+        return response()->json(['message' => 'Registros creados correctamente'], 201);
     }
-
-    return response()->json(['message' => 'Registros creados correctamente'], 201);
-}
 
 
 

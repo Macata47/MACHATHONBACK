@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // Llama al seeder para poblar la tabla de roles
+       
         $this->call([
             RoleSeeder::class,
             BootcampSeeder::class,
@@ -30,8 +30,7 @@ class DatabaseSeeder extends Seeder
             UserBackendtechLevelSeeder::class,
             UserFrontendtechLevelSeeder::class,
             UserControlversionLevelSeeder::class,
-            // TeamSeeder::class,
-            // UserTeamSeeder::class,
+            
 
         ]);
 

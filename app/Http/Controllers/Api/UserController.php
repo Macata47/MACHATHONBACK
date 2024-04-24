@@ -39,10 +39,10 @@ class UserController extends Controller
         'active' => 'required|boolean',
     ]);
 
-    // Crear el usuario
+    
     $user = User::create($request->all());
 
-    // Alimentar las relaciones muchos a muchos
+    
     $user->backendTechnologies()->attach($request->backendtechnology, ['level_id' => $request->backend_level]);
     $user->frontendTechnologies()->attach($request->frontendtechnology, ['level_id' => $request->frontend_level]);
     $user->controlVersions()->attach($request->controlversion, ['level_id' => $request->version_control_level]);

@@ -25,7 +25,7 @@ class UserTeam extends Model
         'user_id', 'team_id',
     ];
 
-    // Relación para obtener el equipo al que pertenece el usuario
+    
     public function team()
     {
         return $this->belongsTo(Team::class);

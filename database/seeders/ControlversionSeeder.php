@@ -17,7 +17,7 @@ class ControlversionSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        // Insertamos los control version stacks manualmente
+        
         Controlversion::create(['controlversion' => 'Git', 'created_at' => $now, 'updated_at' => $now]);
         Controlversion::create(['controlversion' => 'GitHub', 'created_at' => $now, 'updated_at' => $now]);
         Controlversion::create(['controlversion' => 'SVN', 'created_at' => $now, 'updated_at' => $now]);

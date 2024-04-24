@@ -27,13 +27,13 @@ class UserControlversionLevelController extends Controller
             'control_versions' => 'required|array',
             'control_versions.*' => 'exists:control_versions,id',
             'levels' => 'required|array',
-            'levels.*' => 'required|integer|min:1|max:3', // Ajusta los límites según tus necesidades
+            'levels.*' => 'required|integer|min:1|max:3', 
         ]);
     
-        // Obtener los datos del formulario
+        
         $data = $request->only(['control_versions', 'levels']);
     
-        // Crear registros en la tabla pivot
+        
         foreach ($data['control_versions'] as $key => $controlVersionId) {
             $user->controlVersions()->attach($controlVersionId, ['level_id' => $data['levels'][$key]]);
         }
@@ -60,7 +60,7 @@ class UserControlversionLevelController extends Controller
         $userControlversionLevel = UserControlversionLevel::findOrFail($id);
 
         $request->validate([
-            // Aquí puedes agregar validaciones si es necesario
+            
         ]);
 
         $userControlversionLevel->update($request->all());
